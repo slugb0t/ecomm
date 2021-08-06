@@ -4,9 +4,10 @@ import { stripHtml } from 'string-strip-html';
 class ProductItem extends Component {
     constructor(props) {
         super(props);
+
         this.handleAddToCart = this.handleAddToCart.bind(this);
     }
-
+    
     handleAddToCart() {
         this.props.onAddToCart(this.props.product.id, 1);
     }
@@ -32,7 +33,8 @@ class ProductItem extends Component {
                 <button 
                 name="Add to cart" 
                 className="product__btn"   
-                onClick={this.handleAddToCart}>
+                onClick={this.handleAddToCart}
+                >
                     Quick Add
                 </button> 
             </div>

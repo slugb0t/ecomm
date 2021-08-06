@@ -12,6 +12,7 @@ class ProductsList extends Component {
                     <ProductItem
                     key={product.id}
                     product={product}
+                    {...this.props}     //spread operator to pass the whole props object
                     />
                 ))}
             </div>
