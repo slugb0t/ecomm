@@ -37,6 +37,7 @@ class Cart extends Component {
                     <CartItem
                     item={lineItem}
                     key={lineItem.id}
+                    {...this.props}
                     className="cart__inner"
                     />
                 ))}

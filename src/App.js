@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { commerce } from './lib/commerce';
 import { FontAwesomeIcon } from '@fortawesome/fontawesome-free';
+import { Switch, Route } from 'react-router-dom'
 
 import Cart from './components/Cart';
 import ProductsList from './components/ProductsList';
+import Checkout from './pages/Checkout';
+import Confirmation from './pages/Confirmation';
 
 class App extends Component {
   constructor(props) {
@@ -14,15 +17,32 @@ class App extends Component {
       loading: true,
       cart: {},
       isCartVisible: false,
+      order: this.loadOrderFromLocalStorage() ?? {},
     }
 
     this.handleAddToCart = this.handleAddToCart.bind(this);
+    this.handleEmptyCart = this.handleEmptyCart.bind(this);
+    this.handleUpdateCartQty = this.handleUpdateCartQty.bind(this);
+    this.toggleCart = this.toggleCart.bind(this);
+    this.handleCaptureCheckout = this.handleEmptyCart.bind(this);
+    this.refreshCart = this.refreshCart.bind(this);
   }
 
   componentDidMount() {
     this.fetchProducts();
     this.fetchCart();
+    this.fetchCart();
+    this.loadOrderFromLocalStorage();
   };
+
+  /**
+   * Fetch a saved order receipt from local storage so we can show the confirmation page
+   */
+  loadOrderFromLocalStorage() {
+    if(window.localStorage.getItem('order_receipt')) {
+      return JSON.parse(window.localStorage.getItem('order_receipt'));
+    }
+  }
 
   fetchCart() {
     commerce.cart.retrieve().then((cart) => {
@@ -50,6 +70,12 @@ class App extends Component {
     });
   }
 
+
+  /**
+   * Adds a product to the current cart in session
+   * @param {string} productId 
+   * @param {number} quantity 
+   */
   handleAddToCart(productId, quantity) {
     commerce.cart.add(productId, quantity).then((item) => {
       this.setState({ cart: item.cart });
@@ -58,6 +84,12 @@ class App extends Component {
     });
   }
 
+
+  /**
+   * Updates line_items in cart
+   * @param {string} lineItemId 
+   * @param {number} quantity 
+   */
   handleUpdateCartQty(lineItemId, quantity) {
     commerce.cart.update(lineItemId, { quantity }).then((resp) => {
       this.setState({ cart: resp.cart });
@@ -66,6 +98,11 @@ class App extends Component {
     });
   }
 
+
+  /**
+   * Removes line item from cart
+   * @param {string} lineItemId 
+   */
   handleRemoveFromCart(lineItemId) {
     commerce.cart.remove(lineItemId).then((resp) => {
       this.setState({
@@ -76,6 +113,10 @@ class App extends Component {
     });
   }
 
+
+  /**
+   * Empties cart contents
+   */
   handleEmptyCart() {
     commerce.cart.empty().then((resp) => {
       this.setState({
@@ -83,6 +124,36 @@ class App extends Component {
       });
     }).catch((error) => {
       console.log('There was an error emptying the cart', error);
+    });
+  }
+
+  handleCaptureCheckout(checkoutTokenId, newOrder) {
+    commerce.checkout.capture(checkoutTokenId, newOrder).then((order) => {
+      this.setState({
+        order: order,
+      });
+      //Store the order in session storage so we can show it again
+      // if the user refreshes the page!
+      window.localStorage.setItem('order_receipt', JSON.stringify(order));
+      // Clears the cart
+      this.refreshCart();
+      // Send the user to the receipt
+      this.props.history.push('/confirmation');
+    }).catch((error) => {
+      console.log('There was an error confirming your order', error);
+    });
+  }
+
+  /**
+   * Refreshes to a new cart
+   */
+  refreshCart() {
+    commerce.cart.refresh().then((newCart) => {
+      this.setState({
+        cart: newCart,
+      })
+    }).catch((error) => {
+      console.log('There was an error refreshing your cart', error);
     });
   }
 
@@ -108,7 +179,7 @@ class App extends Component {
   }
 
   render() {
-    const { products, loading, cart, isCartVisible } = this.state;
+    const { products, loading, cart, isCartVisible, order } = this.state;
     
     if(loading) {
       return <p>Loading...</p>
@@ -118,13 +189,46 @@ class App extends Component {
 
     return (
       <div className="app">
-        <ProductsList
-          products={products}
-          onAddToCart={this.handleAddToCart}
-        />
-        <Cart
-        cart={cart}
-        />
+        <Switch>
+          <Route
+            path="/"
+            exact
+            render={(props) => {
+              return (
+                <>
+                  { this.renderCartNav() }
+                  {isCartVisible && 
+                    <Cart
+                      {...this.props}
+                      cart={cart}
+                      onUpdateCartQty={this.handleUpdateCartQty}
+                      onRemoveFromCart={this.handleRemoveFromCart}
+                      onEmptyCart={this.handleEmptyCart}
+                    />
+                  }
+                  <ProductsList
+                    {...this.props}
+                    products={products}
+                    onAddToCart={this.handleAddToCart}
+                  />
+                </>
+              );
+            }}
+          />
+          <Route
+            path="/checkout"
+            exact
+            render={(props) => {
+              return (
+                <Checkout
+                  {...this.props}
+                  cart={cart}
+                  onCaptureCheckout={this.handleCaptureCheckout}
+                />
+              );
+            }}
+          />
+        </Switch>
       </div>
     );
   }
