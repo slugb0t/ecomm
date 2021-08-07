@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CartItem from './CartItem';
+import { Link } from 'react-router-dom';
 
 class Cart extends Component {
     constructor(props) {
@@ -47,7 +48,11 @@ class Cart extends Component {
                 </div>
                 <div className="cart__footer">
                     <button className="cart__btn-empty" onClick={this.handleEmptyCart}>Empty Cart</button>
-                    <button className="cart__btn-checkout">Checkout</button>
+                    <Link
+                        className="cart__btn-checkout"
+                        to="/checkout"
+                    >Checkout
+                    </Link>
                 </div>
             </>
         );
