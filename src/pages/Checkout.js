@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react';
 import React, { Component } from 'react';
 import { commerce } from '../lib/commerce';
+import PropTypes from 'prop-types';
 
 class Checkout extends Component {
     constructor(props) { 
@@ -188,59 +188,95 @@ class Checkout extends Component {
                 <h4 className="checkout__subheading">Customer information</h4>
 
                     <label className="checkout__label" htmlFor="firstName">First name</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.firstName} name="firstName" placeholder="Enter your first name" required/>
+                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.firstName} name="firstName" placeholder="Enter your first name" required />
 
                     <label className="checkout__label" htmlFor="lastName">Last name</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.lastName} name="lastName" placeholder="Enter your last name" required/>
+                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.lastName}name="lastName" placeholder="Enter your last name" required />
 
                     <label className="checkout__label" htmlFor="email">Email</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.email} name="email" placeholder="Enter your email" required/>
+                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.email} name="email" placeholder="Enter your email" required />
 
                 <h4 className="checkout__subheading">Shipping details</h4>
 
-                    <label className="checkout__label" htmlFor="shippingName">Full name</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingName} name="shippingName" placeholder="Enter your shipping full name" required/>
+                <label className="checkout__label" htmlFor="shippingName">Full name</label>
+                <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingName} name="shippingName" placeholder="Enter your shipping full name" required />
 
-                    <label className="checkout__label" htmlFor="shippingStreet">Street</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingStreet} name="shippingStreet" placeholder="Enter your street" required/>
+                <label className="checkout__label" htmlFor="shippingStreet">Street address</label>
+                <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingStreet} name="shippingStreet" placeholder="Enter your street address" required />
 
-                    <label className="checkout__label" htmlFor="shippingCity">City</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingCity} name="shippingCity" placeholder="Enter your city" required/>
+                <label className="checkout__label" htmlFor="shippingCity">City</label>
+                <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingCity} name="shippingCity" placeholder="Enter your city" required />
 
-                    <label className="checkout__label" htmlFor="shippingPostalZipCode">Postal/Zip code</label>
-                    <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingPostalZipCode} name="shippingPostalZipCode" placeholder="Enter Postal/Zip code" required/>
+                <label className="checkout__label" htmlFor="shippingPostalZipCode">Postal/Zip code</label>
+                <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.shippingPostalZipCode} name="shippingPostalZipCode" placeholder="Enter your postal/zip code" required />
 
-                    <label className="checkout__label" htmlFor="shippingCountry">Country</label>
-                    <select
-                        value={this.shippingCountry}
-                        name="shippingCountry"
-                        onChange={this.handleShippingCountryChange}
-                        className="checkout__select"
-                    >
-                        <option disabled>Country</option>
-                        {
-                            Object.keys(shippingSubdivisions).map((index) => {
-                                return (
-                                    <option  value={index} key={index}>{shippingSubdivisions[index]}</option>
-                                );
-                            })
-                        };
-                    </select>
+                <label className="checkout__label" htmlFor="shippingCountry">Country</label>
+                <select
+                    value={this.state.shippingCountry}
+                    name="shippingCountry"
+                    onChange={this.handleShippingCountryChange}
+                    className="checkout__select"
+                >
+                    <option disabled>Country</option>
+                    {
+                        Object.keys(shippingCountries).map((index) => {
+                            return (
+                                <option value={index} key={index}>{shippingCountries[index]}</option>
+                            );
+                        })
+                    };
+                </select>
 
-                    <h4 classNam="checkout__subheading">Payment information</h4>
-                        <label className="checkout__label" htmlFor="cardNum">Credit card</label>
-                        <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.cardNum} placeholder="Enter your card number" required/>
+                <label className="checkout__label" htmlFor="shippingStateProvince">State/province</label>
+                <select
+                    value={this.state.shippingStateProvince}
+                    name="shippingStateProvince"
+                    onChange={this.handleSubdivisionChange}
+                    className="checkout__select"
+                >
+                    <option className="checkout__option" disabled>State/province</option>
+                    {
+                        Object.keys(shippingSubdivisions).map((index) => {
+                            return (
+                                <option value={index} key={index}>{shippingSubdivisions[index]}</option>
+                            );
+                        })
+                    };
 
-                        <label className="checkout__label" htmlFor="expMonth">Expiry month</label>
-                        <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.expMonth} placeholder="Card expiry month" required/>
+                </select>
 
-                        <label className="checkout__label" htmlFor="expYear">Expiry year</label>
-                        <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.expYear} placeholder="Card expiry year" required/>
+                <label className="checkout__label" htmlFor="shippingOption">Shipping method</label>
+                <select
+                    value={this.state.shippingOption.id}
+                    name="shippingOption"
+                    onChange={this.handleFormChanges}
+                    className="checkout__select"
+                >
+                    <option className="checkout__select-option" disabled>Select a shipping method</option>
+                    {
+                        shippingOptions.map((method, index) => {
+                            return (
+                                <option className="checkout__select-option" value={method.id} key={index}>{`${method.description} - $${method.price.formatted_with_code}` }</option>
+                            );
+                        })
+                    };
+                </select>
 
-                        <label className="checkout__label" htmlFor="ccv">CCV</label>
-                        <input className="checkout__input" type="text" onChange={this.handleFormChanges} value={this.state.ccv} placeholder="CCV" required/>
+                <h4 className="checkout__subheading">Payment information</h4>
 
-                        <button onClick={this.handleCaptureCheckout} className="checkout__btn-confirm">Confirm order</button>
+                <label className="checkout__label" htmlFor="cardNum">Credit card number</label>
+                <input className="checkout__input" type="text" name="cardNum" onChange={this.handleFormChanges} value={this.state.cardNum} placeholder="Enter your card number" />
+
+                <label className="checkout__label" htmlFor="expMonth">Expiry month</label>
+                <input className="checkout__input" type="text" name="expMonth" onChange={this.handleFormChanges} value={this.state.expMonth} placeholder="Card expiry month" />
+
+                <label className="checkout__label" htmlFor="expYear">Expiry year</label>
+                <input className="checkout__input" type="text" name="expYear" onChange={this.handleFormChanges} value={this.state.expYear} placeholder="Card expiry year" />
+
+                <label className="checkout__label" htmlFor="ccv">CCV</label>
+                <input className="checkout__input" type="text" name="ccv" onChange={this.handleFormChanges} value={this.state.ccv} placeholder="CCV (3 digits)" />
+
+                <button onClick={this.handleCaptureCheckout} className="checkout__btn-confirm">Confirm order</button>
             </form>
         );
     };
