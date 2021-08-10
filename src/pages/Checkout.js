@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
-import { commerce } from '../lib/commerce';
 import PropTypes from 'prop-types';
+import { commerce } from '../lib/commerce';
 
 class Checkout extends Component {
-    constructor(props) { 
+    constructor(props) {
         super(props);
 
         this.state = {
             checkoutToken: {},
-            // Customer Details
-            firstName: '',
-            lateName: '',
-            email: '',
+            // Customer details
+            firstName: 'Jane',
+            lastName: 'Doe',
+            email: 'janedoe@email.com',
             // Shipping details
-            shippingName: '',
-            shippingStreet: '',
+            shippingName: 'Jane Doe',
+            shippingStreet: '123 Fake St',
             shippingCity: '',
             shippingStateProvince: '',
             shippingPostalZipCode: '',
             shippingCountry: '',
-            //Payment Details
-            cardNum: '',
-            expMonth: '',
-            expYear: '',
-            ccv: '',
+            // Payment details
+            cardNum: '4242 4242 4242 4242',
+            expMonth: '11',
+            expYear: '2023',
+            ccv: '123',
             billingPostalZipcode: '',
             // Shipping and fulfillment data
             shippingCountries: {},
@@ -39,41 +39,41 @@ class Checkout extends Component {
     };
 
     componentDidMount() {
-        this.generateCheckoutToken();
+      this.generateCheckoutToken();
     };
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.state.shippingCountry !== prevState.shippingCountry) {
-            this.fetchShippingOptions(this.state.checkoutToken.id, this.state.shippingCountry);
+        if (this.state.shippingCountry !== prevState.shippingCountry) {
+          this.fetchShippingOptions(this.state.checkoutToken.id, this.state.shippingCountry);
         }
     };
 
     sanitizedLineItems(lineItems) {
-        return lineItems.reduce((data, lineItem) => {
-            const item = data;
-            let variantData = null;
-            if(lineItem.selected_options.length) {
-                variantData = {
-                    [lineItem.selected_options[0].group_id]: lineItem.selected_options[0].option_id,
-                };
-            }
-            item[lineItem.id] = {
-                quantity: lineItem.quantity,
-                variants: variantData,
-            };
-            return item;
-        }, {});
+      return lineItems.reduce((data, lineItem) => {
+        const item = data;
+        let variantData = null;
+        if (lineItem.selected_options.length) {
+          variantData = {
+            [lineItem.selected_options[0].group_id]: lineItem.selected_options[0].option_id,
+          };
+        }
+        item[lineItem.id] = {
+          quantity: lineItem.quantity,
+          variants: variantData,
+        };
+        return item;
+      }, {});
     }
 
-    /**
-     *  Generates a checkout Token
-     */
-
+   /**
+    *  Generates a checkout token
+    *  https://commercejs.com/docs/sdk/checkout#generate-token
+    */
     generateCheckoutToken() {
         const { cart } = this.props;
         if (cart.line_items.length) {
             return commerce.checkout.generateToken(cart.id, { type: 'cart' })
-                .then((token) =>this.setState({ checkoutToken: token }))
+                .then((token) => this.setState({ checkoutToken: token }))
                 .then(() => this.fetchShippingCountries(this.state.checkoutToken.id))
                 .catch((error) => {
                     console.log('There was an error in generating a token', error);
@@ -81,9 +81,10 @@ class Checkout extends Component {
         }
     };
 
-
     /**
      * Fetches a list of countries available to ship to checkout token
+     * https://commercejs.com/docs/sdk/checkout#list-available-shipping-countries
+     *
      * @param {string} checkoutTokenId
      */
     fetchShippingCountries(checkoutTokenId) {
@@ -97,26 +98,30 @@ class Checkout extends Component {
     };
 
     /**
-     * Fetches the state/province for a country
+     * Fetches the subdivisions (provinces/states) for a country
+     * https://commercejs.com/docs/sdk/checkout#list-all-subdivisions-for-a-country
+     *
      * @param {string} countryCode
      */
-    fetchSupdivisions(countryCode) {
+    fetchSubdivisions(countryCode) {
         commerce.services.localeListSubdivisions(countryCode).then((subdivisions) => {
             this.setState({
                 shippingSubdivisions: subdivisions.subdivisions,
-            }).catch((error) => {
-                console.log('There was an error fetching state/province', error);
             })
+        }).catch((error) => {
+            console.log('There was an error fetching the subdivisions', error);
         });
     };
 
     /**
-     * Fetches available shipping methods
+     * Fetches the available shipping methods for the current checkout
+     * https://commercejs.com/docs/sdk/checkout#get-shipping-methods
+     *
      * @param {string} checkoutTokenId
      * @param {string} country
      * @param {string} stateProvince
      */
-     fetchShippingOptions(checkoutTokenId, country, stateProvince = null) {
+    fetchShippingOptions(checkoutTokenId, country, stateProvince = null) {
         commerce.checkout.getShippingOptions(checkoutTokenId,
             {
                 country: country,
@@ -134,24 +139,29 @@ class Checkout extends Component {
     };
 
     handleFormChanges(e) {
-        this.setState({
-          [e.target.name]: e.target.value,
-        });
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
     };
 
     handleShippingCountryChange(e) {
-        const currentValue = e.target.value;
-        this.fetchSupdivisions(currentValue);
+      const currentValue = e.target.value;
+      this.fetchSubdivisions(currentValue);
     };
+
+    handleSubdivisionChange(e) {
+      const currentValue = e.target.value;
+      this.fetchShippingOptions(this.state.checkoutToken.id, this.state.shippingCountry, currentValue)
+    }
 
     handleCaptureCheckout(e) {
         const { cart } = this.props;
         e.preventDefault();
         const orderData = {
             line_items: this.sanitizedLineItems(cart.line_items),
-            custome: {
+            customer: {
                 firstname: this.state.firstName,
-                lastname: this.state.lastname,
+                lastname: this.state.lastName,
                 email: this.state.email
             },
             shipping: {
@@ -163,14 +173,14 @@ class Checkout extends Component {
                 country: this.state.shippingCountry,
             },
             fulfillment: {
-                shipping_method: this.state.shippingOption
+                shipping_method: this.state.shippingOption.id
             },
             payment: {
-                gatway: "test_gatway",
+                gateway: "test_gateway",
                 card: {
                     number: this.state.cardNum,
                     expiry_month: this.state.expMonth,
-                    expiry_year: this.state.expiry_year,
+                    expiry_year: this.state.expYear,
                     cvc: this.state.ccv,
                     postal_zip_code: this.state.shippingPostalZipCode
                 }
@@ -284,7 +294,7 @@ class Checkout extends Component {
     renderCheckoutSummary() {
         const { cart } = this.props;
 
-        return(
+        return (
             <>
                 <div className="checkout__summary">
                     <h4>Order summary</h4>
@@ -294,12 +304,12 @@ class Checkout extends Component {
                                     <img className="checkout__summary-img" src={lineItem.media.source} alt={lineItem.name}/>
                                     <p className="checkout__summary-name">{lineItem.quantity} x {lineItem.name}</p>
                                     <p className="checkout__summary-value">{lineItem.line_total.formatted_with_symbol}</p>
-                                </div>
+                                    </div>
                             </>
                         ))}
                     <div className="checkout__summary-total">
                         <p className="checkout__summary-price">
-                            <span>Subotal: </span>
+                            <span>Subtotal:</span>
                             {cart.subtotal.formatted_with_symbol}
                         </p>
                     </div>
@@ -310,16 +320,23 @@ class Checkout extends Component {
 
     render() {
         return (
-            <div className="checkout">
-                <h2 className="checkout__heading">Checkout</h2>
-                <div className="checkout__wrapp">
+          <div className="checkout">
+                <h2 className="checkout__heading">
+                    Checkout
+                </h2>
+                <div className="checkout__wrapper">
                     { this.renderCheckoutForm() }
                     { this.renderCheckoutSummary() }
                 </div>
-            </div>
+          </div>
         );
     };
 };
 
-
 export default Checkout;
+
+Checkout.propTypes = {
+    cart: PropTypes.object,
+    history: PropTypes.object,
+    onCaptureCheckout: () => {},
+}

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ProductItem from './ProductItem';
+import PropTypes from 'prop-types';
 
 
 class ProductsList extends Component {
@@ -21,3 +22,9 @@ class ProductsList extends Component {
 }
 
 export default ProductsList;
+
+ProductsList.propTypes = {
+    products: PropTypes.array,
+    handleAddToCart: PropTypes.func,
+    onAddToCart: PropTypes.func,
+};

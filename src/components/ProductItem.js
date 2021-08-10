@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { stripHtml } from 'string-strip-html';
+import PropTypes from 'prop-types';
 
 class ProductItem extends Component {
     constructor(props) {
@@ -43,3 +44,9 @@ class ProductItem extends Component {
 };
 
 export default ProductItem;
+
+ProductItem.propTypes = {
+    product: PropTypes.object,
+    onAddToCart: PropTypes.func,
+    handleAddToCart: PropTypes.func,
+};

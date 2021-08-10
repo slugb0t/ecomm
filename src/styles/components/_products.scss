@@ -57,14 +57,16 @@
             transition: all 0.3s ease-in-out;
             margin-top: 1rem;
             border: none;
+
+            &:hover {
+                background-color: lighten(#EF4E42, 5);
+            }
+    
+            @include sm {
+                margin-top: 0;
+            }
         }
 
-        &:hover {
-            background-color: lighten(#EF4E42, 5);
-        }
-
-        @include sm {
-            margin-top: 0;
-        }
+ 
     }
 }

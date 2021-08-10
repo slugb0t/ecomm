@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import CartItem from './CartItem';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 class Cart extends Component {
     constructor(props) {
@@ -70,3 +71,12 @@ class Cart extends Component {
 };
 
 export default Cart;
+
+Cart.propTypes = {
+    cart: PropTypes.object,
+    onUpdateCartQty: () => {},
+    onRemoveFromCart: () => {},
+    onEmptyCart: () => {},
+    handleUpdateCartQty: PropTypes.func,
+    history: PropTypes.object
+};
