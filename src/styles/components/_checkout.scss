@@ -1,0 +1,42 @@
+.checkout {
+
+    &__wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
+    &__heading {
+        margin-top: 2.5rem;
+        margin-left: 3rem;
+        color: $text-grey;
+    }
+
+    &__form {
+        background-color: white;
+        border: 2px solid $text-primary;
+        width: 50%;
+        padding: 2.5rem 2rem;
+        margin: 3rem;
+        margin-top: 1.5rem;
+    }
+}
+
+//defining a flex container (display: flex)
+//change the direction of the main axis: flex-direction: row | column | or reverse-*
+//by default flex imtems will try to fit onto one line. You can change that and allow wrap
+//(flex-wrap: nowrap | wrap | wrap-reverse
+
+//A shorthand for the flex-direction and flex-wrap
+//which define the containers main and cross axes,
+//(default value is row nowrap) flex-flow: column wrap;
+
+//justify-content defines the alignment along the main axis
+//justify-content: flex-start | flex-end | center | space-between | space-around | space-evenly
+
+//alignt-items defines the default behavior for how items are laid
+//out along the cross axis on the current line
+//Think of it ass that justify-content version for the cross-axis
+//align-items: flex-start | flex-end | center | stretch | baseline
+
+//flex items are laid out in the source order
+//however order property controls the order in which they appear
